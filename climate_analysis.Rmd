@@ -1,0 +1,47 @@
+---
+title: "climate_data"
+author: "Alex Milward"
+date: "10/19/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+library(janitor)
+
+```
+
+Read in data
+
+```{r}
+#parse out year, month, day
+
+climate <- read.csv("climate.csv") %>%
+  clean_names() %>% 
+  mutate(year = lubridate::year(date),
+         month = lubridate::month(date),
+         day = lubridate::day(date
+                              )) %>% 
+  drop_na()
+
+#summarize annually
+
+climate_annual <- climate %>% 
+  group_by(year) %>% 
+  summarize(mean_precip = mean(prcp),
+            mean_temp_max = mean(tmax),
+            mean_temp_min = mean(tmin))
+
+#graph
+climate_graph <- ggplot(data = climate_annual, aes(y = mean_precip, x = year)) +
+  geom_line()
+
+climate_graph
+
+
+
+
+```
+
