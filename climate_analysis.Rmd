@@ -18,27 +18,43 @@ Read in data
 ```{r}
 #parse out year, month, day
 
-climate <- read.csv("climate.csv") %>%
-  clean_names() %>% 
-  mutate(year = lubridate::year(date),
-         month = lubridate::month(date),
-         day = lubridate::day(date
-                              )) %>% 
-  drop_na()
+ climate <- read.csv("climate.csv") %>%
+   clean_names() 
+#   mutate(year = lubridate::year(date),
+#          month = lubridate::month(date),
+#          day = lubridate::day(date)
+#   drop_na()
+
+# climate <- read.csv("climate.csv") %>% 
+#   clean_names() %>% 
+#   mutate(mo_y_day = lubridate::parse_date_time(date, "myd"))
 
 #summarize annually
 
 climate_annual <- climate %>% 
-  group_by(year) %>% 
-  summarize(mean_precip = mean(prcp),
+  group_by(month = floor_date(as.Date(date), "month")) %>% 
+  summarize(total_precip = sum(prcp),
             mean_temp_max = mean(tmax),
-            mean_temp_min = mean(tmin))
+            mean_temp_min = mean(tmin),
+            mean_temp = (mean_temp_max + mean_temp_min)/2)
 
 #graph
-climate_graph <- ggplot(data = climate_annual, aes(y = mean_precip, x = year)) +
-  geom_line()
+precip_graph <- ggplot(data = climate_annual, aes(y = total_precip, x = month)) +
+  geom_line(color = "blue") +
+ # scale_y_continuous(expand = c(0,0)) +
+ # scale_x_continuous(expand = c(0,0)) +
+  labs(title = "Monthly precipitation from 1992 - 2020",
+         x = "year",
+         y = "monthly precipiation") +
+  theme_bw()
 
-climate_graph
+precip_graph
+
+#temp_graph <- ggplot(data = climate_annual) +
+#   geom_line(aes(y = mean_temp, x = month, color = "black")) +
+#   geom_line(aes(y = mean_temp_max, x = month))
+
+# temp_graph
 
 
 
