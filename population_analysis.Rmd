@@ -1,0 +1,52 @@
+---
+title: "census_analysis"
+author: "Alex Milward"
+date: "10/27/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(kableExtra)
+```
+
+Read in data
+```{r}
+population_data <- read_csv("pop_updated.csv")
+
+# data frame omitting stanislaus
+pop_data_omit <- population_data %>% 
+  filter(county %in% c("calaveras", "tuolumne", "alpine"))
+```
+
+```{r}
+# Plot and visualize data by year
+
+pop_plot <- ggplot(data = pop_data_omit, aes(x = year, y = population)) +
+  geom_col(aes(fill = county), position = "dodge", show.legend = TRUE) +
+  scale_y_continuous(breaks = c(0, 10000, 20000, 30000, 40000, 50000, 60000)) +
+  scale_x_continuous(breaks = c(1990, 2000, 2010, 2019)) +
+  #facet_wrap(~county)
+  theme_bw() +
+  labs(y = "population estimate (number of people)",
+       title = "Population estimates from 1990 - 2019")
+
+pop_plot
+```
+
+Population tables!
+```{r}
+pop_summary <- pop_data_omit %>% 
+  mutate(pct_change = case_when(
+    county == "calaveras" ~ ((45905-31998)/31998),
+    county == "alpine" ~ ((1129-1113)/1113),
+    county == "tuolumne" ~ ((55365-48456)/48456))) %>% 
+  group_by(county, pct_change) %>% 
+  summarize()
+
+
+```
+
